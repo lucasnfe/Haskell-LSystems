@@ -11,5 +11,5 @@ main
 	picture			 -- picture to display
 
 picture = line [
-    (-50, -100),
-    ( 100, 200)]
+    ( 50, 50),
+    ( 100, 100)]
