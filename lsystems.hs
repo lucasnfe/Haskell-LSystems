@@ -1,9 +1,20 @@
--- | Display "Hello World" in a window.
---
+-- Haskell L-System
+import System.Environment
 import Graphics.Gloss
 
-main
- = display
+main = do
+
+    -- Get the file path from command line
+    c <- getArgs
+    print c
+
+    -- Read the file passed as argument
+    f <- readFile (head c)
+
+    -- Parse the file
+
+    -- Render the grammar
+    display
         (InWindow "Gloss Line"
 		(400, 150) 	 -- window size
 		(10, 10)) 	 -- window position
