@@ -2,17 +2,21 @@
 import System.Environment
 import Graphics.Gloss
 
+getGrammarLine :: String -> [String]
+getGrammarLine s = lines s
+
+parseGrammarFile :: String -> IO [String]
+parseGrammarFile fileName = do
+  text <- readFile fileName
+  return (getGrammarLine text)
+
+-- our program counts the number of spaces in input.txt
+main :: IO ()
 main = do
-
-    -- Get the file path from command line
     c <- getArgs
-    print c
-
-    -- Read the file passed as argument
-    f <- readFile (head c)
-
-    -- Parse the file
-
+    n <- parseGrammarFile (head c)
+    print n
+    
     -- Render the grammar
     display
         (InWindow "Gloss Line"
