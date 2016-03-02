@@ -96,9 +96,6 @@ expandAxiom :: LSystem -> String
 expandAxiom (0, _ , axiom, _) = axiom
 expandAxiom ls@(i, angle, axiom, rules) = expandAxiom (i-1, angle, replace ls, rules)
 
-showExpandedAxiom :: LSystem -> IO String
-showExpandedAxiom ls@(i, angle, axiom, rules) = return (expandAxiom ls)
-
 -- Rendering functions
 degToRad :: Float -> Float
 degToRad alpha = alpha * (pi / 180)
@@ -136,7 +133,7 @@ main = do
     startPoint <- return (0.0, 0.0)
 
     alpha  <- return (degToRad (angle lsystem))
-    result <- showExpandedAxiom lsystem
+    result <- return (expandAxiom lsystem)
 
     points  <- return (renderExpandedAxiom result startPoint direc alpha dist)
     picture <- return (line points)
