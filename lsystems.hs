@@ -71,6 +71,18 @@ parseGrammarFile fileName = do
   return (getGrammarLine text)
 
 -- LSystems implementation
+steps :: LSystem ->  Int
+steps (s, _, _, _) = s
+
+angle :: LSystem -> Float
+angle (_, a, _, _) = a
+
+axiom :: LSystem -> String
+axiom (_, _, x, _) = x
+
+rules :: LSystem -> [Rule]
+rules (_, _, _, r) = r
+
 execRule :: Char -> Rule -> String
 execRule x (pre, sec) = if x == pre then sec else []
 
@@ -88,12 +100,23 @@ showExpandedAxiom :: LSystem -> IO String
 showExpandedAxiom ls@(i, angle, axiom, rules) = return (expandAxiom ls)
 
 -- Rendering functions
--- nextLinePoint :: FloatVector2 -> Float -> FloatVector2
--- nextLinePoint curPoint dir = ((fst curPoint) + 10 * dir, (snd curPoint) + 10 * dir)
---
--- renderExpandedAxiom :: String -> [FloatVector2]
--- renderExpandedAxiom [] = []
--- renderExpandedAxiom (x:xs) = [nextLinePoint x] ++ (renderExpandedAxiom xs)
+degToRad :: Float -> Float
+degToRad alpha = alpha * (pi / 180)
+
+rotateVector :: FloatVector2 -> Float -> FloatVector2
+rotateVector v alpha = ((cos alpha) * (fst v) - (sin alpha) * (snd v),
+                        (sin alpha) * (fst v) + (cos alpha) * (snd v))
+
+nextLinePoint :: FloatVector2 -> FloatVector2 -> Float -> FloatVector2
+nextLinePoint curPoint direc dist = ((fst curPoint) + dist * (fst direc),
+                                     (snd curPoint) + dist * (snd direc))
+
+renderExpandedAxiom :: String -> FloatVector2 -> FloatVector2 -> Float -> Float -> [FloatVector2]
+renderExpandedAxiom [] _ _ _ _ = []
+renderExpandedAxiom ('-':xs) startPoint direc alpha dist = renderExpandedAxiom xs startPoint (rotateVector direc (0.0 - alpha)) alpha dist
+renderExpandedAxiom ('+':xs) startPoint direc alpha dist = renderExpandedAxiom xs startPoint (rotateVector direc alpha) alpha dist
+renderExpandedAxiom ('F':xs) startPoint direc alpha dist = [nextLinePoint startPoint direc dist] ++ (renderExpandedAxiom xs (nextLinePoint startPoint direc dist) direc alpha dist)
+renderExpandedAxiom (_:xs) startPoint direc alpha dist = renderExpandedAxiom xs startPoint direc alpha dist
 
 main :: IO ()
 main = do
@@ -108,17 +131,15 @@ main = do
     lsystem <- parseGrammarData grammarData
 
     -- Apply LSystem expansion rules to get the result
-    x <- showExpandedAxiom lsystem
-    print x
+    dist <- return 5.0
+    direc <- return (0.0, 1.0)
+    startPoint <- return (0.0, 0.0)
+
+    alpha  <- return (degToRad (angle lsystem))
+    result <- showExpandedAxiom lsystem
+
+    points  <- return (renderExpandedAxiom result startPoint direc alpha dist)
+    picture <- return (line points)
 
     -- Render the results
---  display
---      (InWindow "Gloss Line"
---      (400, 150)  -- window size
---      (10, 10)) 	 -- window position
---  white			 -- background color
---  picture		 -- picture to display
---
--- picture = line [
---  ( 50, 50),
---  ( 100, 100)]
+    display (InWindow "Haskell L-System" (800, 600) (0, 0)) white picture
