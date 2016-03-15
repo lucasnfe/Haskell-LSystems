@@ -4,6 +4,35 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{authblk}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{url}
+
+\lstdefinestyle{BashStyle}{
+  language=bash,
+  basicstyle=\small\sffamily,
+  % numbers=left,
+  % numberstyle=\tiny,
+  % numbersep=3pt,
+  % frame=tb,
+  columns=fullflexible,
+  % backgroundcolor=\color{yellow!20},
+  linewidth=0.9\linewidth,
+  xleftmargin=0.1\linewidth
+}
+
+\lstdefinestyle{TextStyle}{
+  language=bash,
+  basicstyle=\small\sffamily,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=-105pt,
+  % frame=tb,
+  columns=fullflexible,
+  % backgroundcolor=\color{yellow!20},
+  linewidth=0.9\linewidth,
+  xleftmargin=0.1\linewidth
+}
 
 \title{L-Systems in Haskell}
 \author[1]{Lucas Ferreira}
@@ -58,7 +87,7 @@ Later, it started being used for PCG in games [1], since this task has become in
 This paper presents a Haskell implementation of L-Systems, in partial fulfillment of the requirements for
 the \textit{CMPS203 - Programming Languages} course of the \textit{University of California, Santa Cruz}.
 The main motivation for using L-System to study Haskell is its recursive nature, which
-is also how haskell process several data structures. Thus, this application
+is also how Haskell process several data structures. Thus, this application
 supports understanding how to design and implement good Haskell code.
 
 This document is structured as follows: Section \ref{lsystems} defines L-Systems and
@@ -85,7 +114,7 @@ The production consists of a predecessor string and a successor string, which is
 
 When the productions are applied to the axiom, they produce more strings. The rules can then be applied
 to each of those strings to produce even more strings, and so on. For example, lets consider the system presented
-in Table \ref{example1}, where the axiom is the string with three symbols ``peg'' and the set of production
+in Table \ref{tab:example1}, where the axiom is the string with three symbols ``peg'' and the set of production
 rules is composed by only one element ``e=eie''.
 
 \begin{table}[!h]
@@ -95,15 +124,15 @@ rules is composed by only one element ``e=eie''.
 Axiom: & peg     \\ \hline
 Rules: & e = eie \\ \hline
 \end{tabular}
-\label{example1}
-\caption{An example of simple recursive L-System}
+\caption{Example of simple recursive L-System.}
+\label{tab:example1}
 \end{table}
 
 The single ``e'' symbol in the axiom is replaced with ``eie'' creating the string ``peieg''.
 Since the rule in this L-system is recursive, the first generation string has two new ``e''
 symbols, each of which get replaced with  ``eie'' in the second generation. This process goes
 on until the desired amount of generations is reached. Table 2 shows the result of applying
-the production tules for 3 generations on the system presented in Table \ref{example2}.
+the production tules for 3 generations on the system presented in Table \ref{tab:example2}.
 
 \begin{table}[]
 \centering
@@ -113,15 +142,15 @@ Generation 1: & peieg             \\ \hline
 Generation 2: & peieieieg         \\ \hline
 Generation 3: & peieieieieieieieg \\ \hline
 \end{tabular}
-\label{example2}
-\caption{The first three generations of strings produced by the L-System}
+\caption{The first three generations of strings produced by the L-System.}
+\label{tab:example2}
 \end{table}
 
 In order to use this system for generating plants and other visual artifacts, one
 has to interpret them visually. A common way of doing that consists in using
 the generated strings to control turtle graphics. Thus, constants are
-used to move and turn a drawing robot, similar to the Logo programming language.
-For instance, let's consider the grammar described in Table \ref{example3}.
+used to move and turn a drawing agent, similar to the Logo programming language.
+For instance, let's consider the grammar described in Table \ref{tab:example3}.
 
 \begin{table}[!h]
 \centering
@@ -130,20 +159,21 @@ For instance, let's consider the grammar described in Table \ref{example3}.
 Axiom: & FX        \\ \hline
 Rules: & X = X+YF+ \newline Y = -FX-Y \\ \hline
 \end{tabular}
-\label{example3}
-% \caption{An example of simple recursive L-System}
+\caption{Example of grammar that can be rendered.}
+\label{tab:example3}
 \end{table}
 
 If the robot interprets F to mean ``move forward drawing one unit'' and - and + to
-mean ``turn right 90 degrees'' and ``turn left 90 degrees'', respectively, then the robot will
-draw what is illustrated in Figure \ref{fig:example} from the string generated
+mean ``turn right 90 degrees'' and ``turn left 90 degrees'', respectively, then the agent will
+draw what is illustrated in Figure \ref{fig:rendered} from the string generated
 with 10 generations.
 
 \begin{figure}[!h]
 \centering
 \includegraphics[width=0.48 \textwidth]{Images/result4.png}
 \vskip -6pt
-\label{fig:example}
+\caption{Rendering of the grammar defined in Table \ref{tab:example3} after 10 generations.}
+\label{fig:rendered}
 \end{figure}
 
 \section{Haskell Implementation}
@@ -151,31 +181,69 @@ with 10 generations.
 
 The Haskell implementation presented in this paper uses the turtle graphics
 structure defined in Section \ref{lsystems}. Grammars are defined in text files,
-which are parsed into L-Systems. After, these systems are rendered using the \textit{Glos}
-package, which is used to draw simple vector graphics on a window.
+which are parsed into L-Systems. After, these systems are rendered using the \textit{Gloss}
+\footnote{\url{https://hackage.haskell.org/package/gloss}} package, which is used to draw
+simple vector graphics on a window. This implementation can be downloaded via GitHub
+\footnote{\url{https://github.com/lucasnfe/Haskell-LSystems}} and to compile and run the
+source code, first download and install \textit{Gloss}. After that, use the following command lines:
 
-% In this section, we present the outline and provide a description of the implementation of the L-System in Haskell.
-% In addition, we provide an overview of the major issues and difficulties encountered in the implementation of the system.
+\begin{figure}[!h]
+\centering
+\begin{lstlisting}[style=BashStyle]
+    $ ghc lsystems.hs -o lsystems
+    $ ./lsystems Grammars/grammar.txt
+\end{lstlisting}
+\vskip -6pt
+\end{figure}
 
-\begin{enumerate}
-\item Parsing the input: The L-system takes as input the axioms, rules, the angle and the number of iterations. The first segment of the code parses the given input.
-\item Parsing the L-Systems grammar: This part of the code takes as input a list of strings (containing the input) and returns an L-system.
-\item Implementing the L-System: Here, the implementation of the L-system is carried out.
-\item Rendering function:
+The program expects only one argument in the command line, which is the path of
+the file that contains the grammar. A grammar file must contain at least 4 lines.
+The first line is an integer defining the amount of generations that the axiom
+has to be expanded. The second line is a real number that defines the angle that
+the drawing agent will turn every time it encounters a constant ``F''. The third
+line is the axiom of the grammar and the fourth line is a production rule. A grammar
+has to have at least one production rule, but it supports more than one. All the
+remainder rules must be defined from the fifth line on. Figure \ref{fig:file} shows how
+to define the grammar of Table \ref{tab:example3} using the implemented system.
 
-\end{enumerate}
+\begin{figure}[!h]
+\centering
+\begin{lstlisting}[style=TextStyle]
+                            10
+                            90
+                            FX
+                            X=X+YF+
+                            Y=-FX-Y
+\end{lstlisting}
+\vskip -6pt
+\caption{File describing the grammar of Table \ref{tab:example3}.}
+\label{fig:file}
+\end{figure}
+
+The grammar files are parsed into custom Haskell data types, which are then
+manipulated by functions that apply the production rules into the axiom. Figure
+below shows how an L-System is defined as a Haskell data type.
+
+\begin{figure}[!h]
+\centering
+\begin{lstlisting}[style=BashStyle]
+    type Rule     = (Char, String)
+    type LSystem  = (Int, Float, String, [Rule])
+\end{lstlisting}
+\vskip -6pt
+\end{figure}
 
 \section{Results}
 \label{results}
 
-\begin{figure}[!h]
-\centering
-\includegraphics[width=0.48 \textwidth]{Images/result1.png}
-\includegraphics[width=0.48 \textwidth]{Images/result2.png}
-\includegraphics[width=0.48 \textwidth]{Images/result3.png}
-\vskip -6pt
-\label{fig:example_level}
-\end{figure}
+% \begin{figure}[!h]
+% \centering
+% \includegraphics[width=0.48 \textwidth]{Images/result1.png}
+% \includegraphics[width=0.48 \textwidth]{Images/result2.png}
+% \includegraphics[width=0.48 \textwidth]{Images/result3.png}
+% \vskip -6pt
+% \label{fig:example_level}
+% \end{figure}
 
 \section{Conclusion}
 \label{conclusion}
