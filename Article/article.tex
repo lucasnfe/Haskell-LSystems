@@ -48,47 +48,42 @@
 \abstract{
 \noindent
 This paper presents a technical report on the implementation of Lindenmayer Systems (or L-Systems)
-using Haskell, a functional programming language. It is present as part of the requirements of
-the \textit{CMPS203 - Programming Languages} course at \textit{University of California, Santa Cruz}.
+using Haskell, a functional programming language. It is presented as part of the requirements of
+the \textit{CMPS 203 - Programming Languages} course at \textit{University of California, Santa Cruz}.
 One of the main motivations of this project is to develop experience in designing and
 implementing good Haskell programs via real-world applications. L-Systems were selected
-because of their recursive structure  and because they are very important in
-the field of Procedural Content Generation, especially for the generation of tress and
+because of their recursive structure  and their importance in
+the field of Procedural Content Generation, especially for the generation of trees and
 forests.
 }
 
 \section{Introduction}
 
 % Introduce the problem
-Video games complexity has increased over the years, consequently the amount of content
-(such as characters, maps, cities, etc) present in these games has also increased.
+Video game complexity has increased substantially over the years. Consequently the content
+(characters, maps, cities, etc) present in these games has also increased.
 One of the main reasons for the increase in complexity of modern games is that the
-virtual worlds contained on them are becoming more realistic. A common problem
-when creating this worlds consists in designing forests, because of their organic
-characteristics. Without the help of a computer, the designer would have to handcraft
+virtual worlds contained on them are becoming more realistic. A common problem, for example,
+when creating these worlds consists in designing forests. Without the help of a computer, the designer would have to handcraft
 every visible tree, in order to create a realistic scene.
 
 % Introduce PCG
 The time and effort spent producing these assets have motivated game developers to design
 algorithms capable of generating content automatically. This approach is called Procedural
-Content Generation (PCG) and it is often used in order to speed up the production
+Content Generation (PCG) and is often used in order to speed up the production
 of content. In this case, developers have the opportunity to interact with PCG methods,
-whose content created may be used as inspiration or starting point. These PCG methods must
-care more about the novelty and diversity than quality or playability, since the developers
-have the possibility to reject or edit any non-desired generated results. Several PCG
+whose content created may be used as inspiration or starting point. These PCG methods must emphasize the novelty and diversity as opposed to quality or playability, since the developers
+have the possibility to reject or edit any undesired generated results. Several PCG
 methods have been developed to support the generation of entire forests and one of
-them is known as Lindenmayer Systems (or L-Systems).
+them is known as the Lindenmayer System (or L-System).
 
 % Introduce the solution
-L-systems are generative grammars that define fractal patterns, which are useful to
-the generation of content in video games and virtual worlds. It was originally defined
+L-systems are generative grammars that define fractal patterns, which are used to
+generate content in video games and virtual worlds. It was originally defined
 to describe the behavior of plant cells and to model the growth processes of plant development [0].
-Later, it started being used for PCG in games [1], since this task has become increasingly demanding.
+Later, it began being used for PCG in games [1], since this task has become increasingly demanding.
 This paper presents a Haskell implementation of L-Systems, in partial fulfillment of the requirements for
 the \textit{CMPS203 - Programming Languages} course of the \textit{University of California, Santa Cruz}.
-The main motivation for using L-System to study Haskell is its recursive nature, which
-is also how Haskell process several data structures. Thus, this application
-supports understanding how to design and implement good Haskell code.
 
 This document is structured as follows: Section \ref{lsystems} defines L-Systems and
 how they are used to produce fractal patterns. Section \ref{implementation} describes
@@ -100,8 +95,8 @@ a conclusion for this work.
 \section{L-Systems}
 \label{lsystems}
 
-L-Systems are formal grammars and they are used to produce intricate and complex patterns
-that are self similar across many scales. The L-System grammar consists of four components:
+L-Systems are formal grammars that are used to produce intricate and complex patterns
+that are self similar across many scales. It consists of four components:
 
 \begin{enumerate}
 \item A set of variables that can be replaced using a set of production rules.
@@ -112,10 +107,9 @@ The production consists of a predecessor string and a successor string, which is
  to the predecessor string.
 \end{enumerate}
 
-When the productions are applied to the axiom, they produce more strings. The rules can then be applied
-to each of those strings to produce even more strings, and so on. For example, lets consider the system presented
+For example, let us consider the system presented
 in Table \ref{tab:example1}, where the axiom is the string with three symbols ``peg'' and the set of production
-rules is composed by only one element ``e=eie''.
+rules is composed of only one rule ``e=eie''.
 
 \begin{table}[!h]
 \centering
@@ -132,7 +126,7 @@ The single ``e'' symbol in the axiom is replaced with ``eie'' creating the strin
 Since the rule in this L-system is recursive, the first generation string has two new ``e''
 symbols, each of which get replaced with  ``eie'' in the second generation. This process goes
 on until the desired amount of generations is reached. Table 2 shows the result of applying
-the production tules for 3 generations on the system presented in Table \ref{tab:example2}.
+the production rules on the system presented in Table \ref{tab:example2} for 3 generations.
 
 \begin{table}[]
 \centering
@@ -146,8 +140,8 @@ Generation 3: & peieieieieieieieg \\ \hline
 \label{tab:example2}
 \end{table}
 
-In order to use this system for generating plants and other visual artifacts, one
-has to interpret them visually. A common way of doing that consists in using
+In order to use this system to recursively generate visual patterns (ex: plants, shapes etc.), one
+has to interpret them visually. A common way of doing this consists of using
 the generated strings to control turtle graphics. Thus, constants are
 used to move and turn a drawing agent, similar to the Logo programming language.
 For instance, let's consider the grammar described in Table \ref{tab:example3}.
@@ -165,9 +159,7 @@ Rules: & X = X+YF+ \newline Y = -FX-Y \\ \hline
 
 If the robot interprets F to mean ``move forward drawing one unit'' and - and + to
 mean ``turn right 90 degrees'' and ``turn left 90 degrees'', respectively, then the agent will
-draw what is illustrated in Figure \ref{fig:rendered} from the string generated
-with 10 generations.
-
+draw what is illustrated in Figure \ref{fig:rendered} after 10 generations.
 \begin{figure}[!h]
 \centering
 \includegraphics[width=0.48 \textwidth]{Images/result4.png}
@@ -181,9 +173,9 @@ with 10 generations.
 
 The Haskell implementation presented in this paper uses the turtle graphics
 structure defined in Section \ref{lsystems}. Grammars are defined in text files,
-which are parsed into L-Systems. After, these systems are rendered using the \textit{Gloss}
+which are parsed into L-Systems. These systems are then rendered using the \textit{Gloss}
 \footnote{\url{https://hackage.haskell.org/package/gloss}} package, which is used to draw
-simple vector graphics on a window. This implementation can be downloaded via GitHub
+simple vector graphics on a window (this implementation can be downloaded on GitHub).
 \footnote{\url{https://github.com/lucasnfe/Haskell-LSystems}} and to compile and run the
 source code, first download and install \textit{Gloss}. After that, use the following command lines:
 
@@ -198,13 +190,11 @@ source code, first download and install \textit{Gloss}. After that, use the foll
 
 The program expects only one argument in the command line, which is the path of
 the file that contains the grammar. A grammar file must contain at least 4 lines.
-The first line is an integer defining the amount of generations that the axiom
-has to be expanded. The second line is a real number that defines the angle that
+The first line is an integer defining the number of times the axiom must be expanded (that is, the number of generations). The second line is a real number that defines the angle that
 the drawing agent will turn every time it encounters a constant ``F''. The third
-line is the axiom of the grammar and the fourth line is a production rule. A grammar
-has to have at least one production rule, but it supports more than one. All the
-remainder rules must be defined from the fifth line on. Figure \ref{fig:file} shows how
-to define the grammar of Table \ref{tab:example3} using the implemented system.
+line is the axiom of the grammar and the fourth line is a production rule. A grammar must have at least one production rule. The
+remaining rules must be defined from the fifth line onward. Figure \ref{fig:file} shows how
+to define the grammar of Table \ref{tab:example3} using the system implemented in Table 3.
 
 \begin{figure}[!h]
 \centering
@@ -221,7 +211,7 @@ to define the grammar of Table \ref{tab:example3} using the implemented system.
 \end{figure}
 
 The grammar files are parsed into custom Haskell data types, which are then
-manipulated by functions that apply the production rules into the axiom. Figure
+manipulated by functions that apply the production rules into the axiom. The figure
 below shows how an L-System is defined as a Haskell data type.
 
 \begin{figure}[!h]
@@ -234,11 +224,11 @@ below shows how an L-System is defined as a Haskell data type.
 \end{figure}
 
 To transform a file into the data type above, two functions were defined:
-\textit{parseGrammarFile} and \textit{parseGrammarData}. The first one has
+\textit{parseGrammarFile} and \textit{parseGrammarData}, respectively. The first function has
 type String $\rightarrow$ [String] and is responsible for reading the file
 and transforming it into a list of strings. Each element of this list represents
 a line of the file. The second function has type [String] $\rightarrow$ LSystem
-and takes the list and creates an L-System, using the data type defined above.
+and takes the list as input and creates an L-System, using the data type defined above.
 Both functions are defined in Figure below.
 
 \begin{figure}[!h]
@@ -260,8 +250,8 @@ Both functions are defined in Figure below.
 \end{figure}
 
 The last two steps of this implementation consists of expanding the axiom using
-the production rules and rendering the resultant string. Two other function were
-defined to accomplish that: \textit{expandAxiom} and \textit{renderExpandedAxiom}.
+the production rules and rendering the resultant string. Two functions were
+defined to accomplish this: \textit{expandAxiom} and \textit{renderExpandedAxiom}.
 The first one has type LSystem $\rightarrow$ String and expands the axiom by
 evaluating each of its constants recursively. At each step of the recursion, the
 current evaluated constant $k$ is substituted by the first rule that has $k$
