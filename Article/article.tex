@@ -233,6 +233,58 @@ below shows how an L-System is defined as a Haskell data type.
 \vskip -6pt
 \end{figure}
 
+To transform a file into the data type above, two functions were defined:
+\textit{parseGrammarFile} and \textit{parseGrammarData}. The first one has
+type String $\rightarrow$ [String] and is responsible for reading the file
+and transforming it into a list of strings. Each element of this list represents
+a line of the file. The second function has type [String] $\rightarrow$ LSystem
+and takes the list and creates an L-System, using the data type defined above.
+Both functions are defined in Figure below.
+
+\begin{figure}[!h]
+\centering
+\begin{lstlisting}[style=BashStyle]
+    parseGrammarFile fileName = do
+      text <- readFile fileName
+      return (lines text)
+\end{lstlisting}
+\begin{lstlisting}[style=BashStyle]
+    parseGrammarData grammarData = do
+        steps <- parseStept grammarData
+        angle <- parseAngle grammarData
+        axiom <- parseAxiom grammarData
+        rules <- parseRules grammarData
+        return (steps, angle, axiom, rules)
+\end{lstlisting}
+\vskip -6pt
+\end{figure}
+
+The last two steps of this implementation consists of expanding the axiom using
+the production rules and rendering the resultant string. Two other function were
+defined to accomplish that: \textit{expandAxiom} and \textit{renderExpandedAxiom}.
+The first one has type LSystem $\rightarrow$ String and expands the axiom by
+evaluating each of its constants recursively. At each step of the recursion, the
+current evaluated constant $k$ is substituted by the first rule that has $k$
+as a predecessor. The functions that expand the axiom are the following:
+
+\begin{figure}[!h]
+\centering
+\begin{lstlisting}[style=BashStyle]
+execRule x (pre, sec) = if x == pre then sec else []
+\end{lstlisting}
+\begin{lstlisting}[style=BashStyle]
+execAllRules rules x = if x `elem` consts then [x] else execRule x =<< rules
+\end{lstlisting}
+\begin{lstlisting}[style=BashStyle]
+replace (_, _, s, rs) = execAllRules rs =<< s
+\end{lstlisting}
+\begin{lstlisting}[style=BashStyle]
+expandAxiom (0, _ , axiom, _) = axiom
+expandAxiom ls@(i, angle, axiom, rules) = expandAxiom (i-1, angle, replace ls, rules)
+\end{lstlisting}
+\vskip -6pt
+\end{figure}
+
 \section{Results}
 \label{results}
 
@@ -247,7 +299,5 @@ below shows how an L-System is defined as a Haskell data type.
 
 \section{Conclusion}
 \label{conclusion}
-
-\section{Appendix}
 
 \end{document}
